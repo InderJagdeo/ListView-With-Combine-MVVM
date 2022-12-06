@@ -1,4 +1,4 @@
-# LiveView-With-Combine-MVVM
+# ListView-With-Combine-MVVM
 Created a simple 'List View' example to show the list of users and their details with the Combine framework and MVVM architecture.
 
 ## Technologies used:
