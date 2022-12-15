@@ -7,7 +7,8 @@
 
 import Foundation
 
-public enum RequestError: Error, LocalizedError {
+public enum RequestError: Error, Equatable, LocalizedError {
+
     case invalidURL(Error? = nil, String = ErrorMessage.invalidUrl.rawValue)
     case unknown(Error? = nil, String = ErrorMessage.unknowError.rawValue)
     case invalidResponse(Error? = nil, String = ErrorMessage.invalidResponse.rawValue)
@@ -41,6 +42,10 @@ public enum RequestError: Error, LocalizedError {
 
     private func errorMessage(_ statusCode: Int, error: String) -> String {
         return "Status Code: \(statusCode) Error: \(error)"
+    }
+
+    public static func == (lhs: RequestError, rhs: RequestError) -> Bool {
+        return lhs.errorDescription == rhs.errorDescription
     }
 }
 
