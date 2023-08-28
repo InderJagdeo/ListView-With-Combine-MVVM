@@ -8,5 +8,5 @@ Created a simple 'List View' example to show the list of users and their details
 
 
 
+![ListView](https://github.com/InderJagdeo/ListView-With-Combine-MVVM/assets/29178012/c80856df-cfb4-46cc-951d-132d72017f75)
 
-![ListView](https://user-images.githubusercontent.com/29178012/205894743-6966baeb-b3ac-4b05-982b-87484ef20673.svg)
