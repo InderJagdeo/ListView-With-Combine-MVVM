@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C70D88F02AB428D600FD50F3 /* Data+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70D88EF2AB428D600FD50F3 /* Data+Ext.swift */; };
+		C70D88F32AB4293300FD50F3 /* PushNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70D88F22AB4293300FD50F3 /* PushNotification.swift */; };
 		FAA4E9BE2938AE5500D292DE /* UITableView+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA4E9BD2938AE5500D292DE /* UITableView+Additions.swift */; };
 		FAA4E9C22939C85900D292DE /* Response.json in Resources */ = {isa = PBXBuildFile; fileRef = FAA4E9C12939C85900D292DE /* Response.json */; };
 		FAC7824C29361EF40046950B /* ListCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC7824A29361EF40046950B /* ListCellView.swift */; };
@@ -63,6 +65,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C70D88EE2AB4289800FD50F3 /* ListView.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ListView.entitlements; sourceTree = "<group>"; };
+		C70D88EF2AB428D600FD50F3 /* Data+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Ext.swift"; sourceTree = "<group>"; };
+		C70D88F22AB4293300FD50F3 /* PushNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotification.swift; sourceTree = "<group>"; };
 		FAA4E9BD2938AE5500D292DE /* UITableView+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+Additions.swift"; sourceTree = "<group>"; };
 		FAA4E9C12939C85900D292DE /* Response.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Response.json; sourceTree = "<group>"; };
 		FAC7824A29361EF40046950B /* ListCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCellView.swift; sourceTree = "<group>"; };
@@ -130,6 +135,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C70D88F12AB4292400FD50F3 /* Permissions */ = {
+			isa = PBXGroup;
+			children = (
+				C70D88F22AB4293300FD50F3 /* PushNotification.swift */,
+			);
+			path = Permissions;
+			sourceTree = "<group>";
+		};
 		FAC7824929361EDD0046950B /* Cell */ = {
 			isa = PBXGroup;
 			children = (
@@ -191,6 +204,7 @@
 		FAE0A89E2935D5210080FF7A /* ListView */ = {
 			isa = PBXGroup;
 			children = (
+				C70D88EE2AB4289800FD50F3 /* ListView.entitlements */,
 				FAE0A8CF2935D53D0080FF7A /* Application */,
 				FAE0A8D12935D5600080FF7A /* Storyboard */,
 				FAE0A8D02935D54F0080FF7A /* ViewConstroller */,
@@ -274,6 +288,7 @@
 		FAE0A8D92935E29A0080FF7A /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				C70D88F12AB4292400FD50F3 /* Permissions */,
 				FAE0A8DA2935E29A0080FF7A /* Network */,
 				FAE0A8ED2935E29A0080FF7A /* Extensions */,
 				FAE0A8F02935E29A0080FF7A /* NetworkMonitor */,
@@ -340,6 +355,7 @@
 				FAE0A8EE2935E29A0080FF7A /* StatusCode+Helper.swift */,
 				FAE0A8EF2935E29A0080FF7A /* CustomStringConvertible+Codable.swift */,
 				FAA4E9BD2938AE5500D292DE /* UITableView+Additions.swift */,
+				C70D88EF2AB428D600FD50F3 /* Data+Ext.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -504,6 +520,8 @@
 				FAA4E9BE2938AE5500D292DE /* UITableView+Additions.swift in Sources */,
 				FAC782542937707C0046950B /* UserDetailViewModel.swift in Sources */,
 				FAE0A8D82935D83C0080FF7A /* UserViewModel.swift in Sources */,
+				C70D88F02AB428D600FD50F3 /* Data+Ext.swift in Sources */,
+				C70D88F32AB4293300FD50F3 /* PushNotification.swift in Sources */,
 				FAE0A8F92935E29A0080FF7A /* Errors.swift in Sources */,
 				FAE0A8F72935E29A0080FF7A /* ErrorParser.swift in Sources */,
 				FAE0A9022935E29A0080FF7A /* NetworkMonitor.swift in Sources */,
@@ -627,7 +645,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -682,7 +700,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -697,11 +715,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ListView/ListView.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = M5M7Z3Y694;
+				DEVELOPMENT_TEAM = U366Y99R5Y;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ListView/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "This app want to use your location";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app want to use your location";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -712,7 +733,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.inderjagdeo.ListView;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sdna.ingkycquiz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -725,11 +746,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ListView/ListView.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = M5M7Z3Y694;
+				DEVELOPMENT_TEAM = U366Y99R5Y;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ListView/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "This app want to use your location";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app want to use your location";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -740,7 +764,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.inderjagdeo.ListView;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sdna.ingkycquiz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

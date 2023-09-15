@@ -52,4 +52,10 @@ class NetworkLogger {
         defer { print("\n - - - - - - - - - -  END - - - - - - - - - - \n") }
         print(error)
     }
+    
+    static func log<T>(log: T) {
+        print("\n - - - - - - - - - - Log - - - - - - - - - - \n")
+        defer { print("\n - - - - - - - - - -  END - - - - - - - - - - \n") }
+        print(log)
+    }
 }

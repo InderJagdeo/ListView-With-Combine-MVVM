@@ -10,35 +10,40 @@ import Combine
 
 
 class UserListViewController: UIViewController {
-
+    
     // MARK: - Properties
     @IBOutlet private weak var tableView: UITableView!
-
+    
     private let viewModel = UserListViewModel()
     private let refreshControl = UIRefreshControl()
-    private var subscriptions = Set<AnyCancellable>()
+    private let notificationManager = PushNotification()
     private let input: PassthroughSubject<UserListViewModel.Input, Never> = .init()
-
+    
     private typealias Snapshot = NSDiffableDataSourceSnapshot<Section, UserViewModel>
     private typealias DataSource = UITableViewDiffableDataSource<Section, UserViewModel>
-
+    
+    private var dataSource: DataSource?
+    private var subscriptions = Set<AnyCancellable>()
+    
     enum Section: CaseIterable {
         case user
     }
+}
 
-    private var dataSource: DataSource?
-
-    // MARK: - UIView Life Cycle
+extension UserListViewController {
+    // MARK: - UIView Methods
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Set navigation item title
         navigationItem.title = "User's List"
-
+        
         // Calling user defined methods
-        bind()
+        subscribeViewModel()
         registerTableViewCell()
+        subscribePushNotificationPermission()
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         input.send(.load)
@@ -46,14 +51,14 @@ class UserListViewController: UIViewController {
 }
 
 extension UserListViewController {
-    // MARK: - User Defined Methods
+    // MARK: - Configurators
     
     private func registerTableViewCell() {
         tableView.register(ListCellView.nib, forCellReuseIdentifier: ListCellView.identifier)
-
+        
         refreshControl.addTarget(self, action: #selector(pullToRefresh(sender:)), for: .valueChanged)
         tableView.refreshControl = refreshControl
-
+        
         dataSource = DataSource(tableView: tableView, cellProvider: {(tableView, indexPath, user) -> UITableViewCell? in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: ListCellView.identifier) as? ListCellView else {
                 return UITableViewCell()
@@ -62,10 +67,14 @@ extension UserListViewController {
             return cell
         })
     }
+}
 
-    private func bind() {
+extension UserListViewController {
+    // MARK: - Subscribers
+    
+    private func subscribeViewModel() {
         let output = viewModel.transform(input: input.eraseToAnyPublisher())
-
+        
         output
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: {[weak self] event in
@@ -80,13 +89,43 @@ extension UserListViewController {
             })
             .store(in: &subscriptions)
     }
+    
+    private func subscribePushNotificationPermission() {
+        // Subscribe to changes in remoteNotificationPermission
+        notificationManager.$pushNotificationPermission
+            .sink { [weak self] permissionStatus in
+                // Update your UI or take actions based on the permission status here
+                self?.handlePermissionStatus(permissionStatus)
+            }
+            .store(in: &subscriptions)
+        
+        // Request remote notification permissions
+        notificationManager.requestPushNotificationPermission()
+    }
+}
+
+extension UserListViewController {
+    // MARK: - User Defined Methods
+    
+    func handlePermissionStatus(_ status: PermissionStatus) {
+        switch status {
+        case .authorized:
+            // Permission granted, you can enable notifications or perform actions here
+            notificationManager.registerForRemoteNotifications()
+            NetworkLogger.log(log: "Remote notification permission is authorized")
+        default:
+            // Permission denied, you can handle this case by showing a message to the user
+            NetworkLogger.log(log: "Remote notification permission is not determind")
+        }
+    }
 }
 
 extension UserListViewController {
     // MARK: - Present UIViewController Methods
+    
     private func presentUserDetailViewController(_ user: User) {
         let viewModel = UserDetailViewModel(user)
-
+        
         let identifier = UserDetailViewController.identifier
         let viewController = UIStoryboard(name: "Main", bundle: .main).instantiateViewController(identifier: identifier, creator: { coder -> UserDetailViewController? in
             let controller = UserDetailViewController(coder: coder, viewModel: viewModel)
@@ -98,6 +137,7 @@ extension UserListViewController {
 
 extension UserListViewController {
     // MARK: - Action Methods
+    
     @objc func pullToRefresh(sender: UIRefreshControl) {
         input.send(.refresh)
     }
@@ -105,13 +145,14 @@ extension UserListViewController {
 
 extension UserListViewController {
     // MARK: - DataSource Methods
+    
     func update(with users: [UserViewModel], animate: Bool = true) {
         var snapshot = Snapshot()
         snapshot.appendSections(Section.allCases)
         snapshot.appendItems(users, toSection: .user)
         dataSource?.apply(snapshot, animatingDifferences: animate)
     }
-
+    
     func remove(_ users: [UserViewModel], animate: Bool = true) {
         guard let dataSource = dataSource else {return}
         var snapshot = dataSource.snapshot()
@@ -121,11 +162,13 @@ extension UserListViewController {
 }
 
 extension UserListViewController: UITableViewDelegate {
+    // MARK: - UITableViewDelegate Methods
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let userViewModel = dataSource?.itemIdentifier(for: indexPath),
               let user = viewModel.user(userViewModel) else {
-                  return
-              }
+            return
+        }
         self.presentUserDetailViewController(user)
     }
 }
