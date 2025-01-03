@@ -11,23 +11,25 @@ import Foundation
 class UserListViewModel {
     
     // MARK: - Properties
-    private var users: [User]?
+    private var users: [User] = []
+    private(set) var listOfUsers: [UserViewModel] = []
+    
     private var subscriptions = Set<AnyCancellable>()
     private let networkManager: NetworkManagerProtocol
     private let output: PassthroughSubject<Output, Never> = .init()
-
+    
     // MARK: - Enumerations
     enum Input: Equatable {
         case load
         case refresh
     }
-
+    
     enum Output {
         case fetchUserDidFinish
+        case fetchUserDidSuccess
         case fetchUserDidFail(error: Error)
-        case fetchUserDidSuccess(user: [UserViewModel])
     }
-
+    
     
     // MARK: - Initializer
     init(_ networkManager: NetworkManagerProtocol = NetworkManager()) {
@@ -37,7 +39,7 @@ class UserListViewModel {
 
 extension UserListViewModel {
     // MARK: - User Defined Methods
-        internal func transform(input: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
+    internal func transform(input: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
         input.sink { [weak self] event in
             switch event {
             case .load, .refresh:
@@ -46,10 +48,10 @@ extension UserListViewModel {
         }.store(in: &subscriptions)
         return output.eraseToAnyPublisher()
     }
-
+    
     internal func user(_ user: UserViewModel) -> User? {
-        let user = self.users?.filter({$0.id == user.id})
-        return user?.first
+        let users = self.users.filter({$0.id == user.id})
+        return users.first
     }
 }
 
@@ -58,12 +60,13 @@ extension UserListViewModel {
     
     private func requestUsers() {
         let request = UserRequest()
-
+        
         let valueHandler: ([User]) -> Void = { [weak self] users in
             self?.users = users
-            self?.output.send(.fetchUserDidSuccess(user: users.map(UserViewModel.init)))
+            self?.listOfUsers = users.map(UserViewModel.init)
+            self?.output.send(.fetchUserDidSuccess)
         }
-
+        
         let completionHandler: (Subscribers.Completion<Error>) -> Void = { [weak self] completion in
             switch completion {
             case .failure(let error):
@@ -72,7 +75,7 @@ extension UserListViewModel {
                 self?.output.send(.fetchUserDidFinish)
             }
         }
-
+        
         networkManager.request(request)
             .sink(receiveCompletion: completionHandler, receiveValue: valueHandler)
             .store(in: &subscriptions)

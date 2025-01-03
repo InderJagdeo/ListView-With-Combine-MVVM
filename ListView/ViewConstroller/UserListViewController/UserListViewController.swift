@@ -36,12 +36,9 @@ extension UserListViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Set navigation item title
-        navigationItem.title = "User's List"
-        
-        // Calling user defined methods
-        subscribeViewModel()
-        registerTableViewCell()
-        subscribePushNotificationPermission()
+        setupUI()
+        bindViewModel()
+        bindPushNotification()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -50,39 +47,43 @@ extension UserListViewController {
     }
 }
 
-extension UserListViewController {
-    // MARK: - Configurators
+private extension UserListViewController {
+    // MARK: - Setup
     
-    private func registerTableViewCell() {
+    func setupUI() {
+        navigationItem.title = "User's List"
+        setupTableView()
+    }
+    
+    func setupTableView() {
         tableView.register(ListCellView.nib, forCellReuseIdentifier: ListCellView.identifier)
-        
-        refreshControl.addTarget(self, action: #selector(pullToRefresh(sender:)), for: .valueChanged)
         tableView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         
-        dataSource = DataSource(tableView: tableView, cellProvider: {(tableView, indexPath, user) -> UITableViewCell? in
+        dataSource = DataSource(tableView: tableView) { tableView, indexPath, user in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: ListCellView.identifier) as? ListCellView else {
                 return UITableViewCell()
             }
             cell.updateView(user)
             return cell
-        })
+        }
     }
 }
 
 extension UserListViewController {
-    // MARK: - Subscribers
+    // MARK: - Binding
     
-    private func subscribeViewModel() {
+    private func bindViewModel() {
         let output = viewModel.transform(input: input.eraseToAnyPublisher())
         
         output
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: {[weak self] event in
                 switch event {
-                case .fetchUserDidSuccess(let users):
-                    self?.update(with: users, animate: true)
+                case .fetchUserDidSuccess:
+                    self?.updateTableView()
                 case .fetchUserDidFail(let error):
-                    print(error.localizedDescription)
+                    self?.showError(error)
                 case .fetchUserDidFinish:
                     self?.refreshControl.endRefreshing()
                 }
@@ -90,7 +91,7 @@ extension UserListViewController {
             .store(in: &subscriptions)
     }
     
-    private func subscribePushNotificationPermission() {
+    private func bindPushNotification() {
         // Subscribe to changes in remoteNotificationPermission
         notificationManager.$pushNotificationPermission
             .sink { [weak self] permissionStatus in
@@ -146,11 +147,11 @@ extension UserListViewController {
 extension UserListViewController {
     // MARK: - DataSource Methods
     
-    func update(with users: [UserViewModel], animate: Bool = true) {
+    func updateTableView() {
         var snapshot = Snapshot()
         snapshot.appendSections(Section.allCases)
-        snapshot.appendItems(users, toSection: .user)
-        dataSource?.apply(snapshot, animatingDifferences: animate)
+        snapshot.appendItems(viewModel.listOfUsers, toSection: .user)
+        dataSource?.apply(snapshot, animatingDifferences: true)
     }
     
     func remove(_ users: [UserViewModel], animate: Bool = true) {
@@ -158,6 +159,11 @@ extension UserListViewController {
         var snapshot = dataSource.snapshot()
         snapshot.deleteItems(users)
         dataSource.apply(snapshot, animatingDifferences: animate)
+    }
+    
+    func showError(_ error: Error) {
+        // Implement error display logic (e.g., show an alert)
+        print("Error: \(error.localizedDescription)")
     }
 }
 
