@@ -35,7 +35,6 @@ extension UserListViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Set navigation item title
         setupUI()
         bindViewModel()
         bindPushNotification()
@@ -47,26 +46,27 @@ extension UserListViewController {
     }
 }
 
-private extension UserListViewController {
-    // MARK: - Setup
+extension UserListViewController {
+    // MARK: - Configurators
     
     func setupUI() {
         navigationItem.title = "User's List"
         setupTableView()
     }
     
-    func setupTableView() {
+    private func setupTableView() {
         tableView.register(ListCellView.nib, forCellReuseIdentifier: ListCellView.identifier)
-        tableView.refreshControl = refreshControl
-        refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         
-        dataSource = DataSource(tableView: tableView) { tableView, indexPath, user in
+        refreshControl.addTarget(self, action: #selector(pullToRefresh(sender:)), for: .valueChanged)
+        tableView.refreshControl = refreshControl
+        
+        dataSource = DataSource(tableView: tableView, cellProvider: {(tableView, indexPath, user) -> UITableViewCell? in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: ListCellView.identifier) as? ListCellView else {
                 return UITableViewCell()
             }
             cell.updateView(user)
             return cell
-        }
+        })
     }
 }
 
@@ -79,12 +79,12 @@ extension UserListViewController {
         output
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: {[weak self] event in
-                switch event {
-                case .fetchUserDidSuccess:
-                    self?.updateTableView()
-                case .fetchUserDidFail(let error):
-                    self?.showError(error)
-                case .fetchUserDidFinish:
+                switch event { 
+                case .success(let users):
+                    self?.updateTableView(with: users, animate: true)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                case .finish:
                     self?.refreshControl.endRefreshing()
                 }
             })
@@ -147,11 +147,11 @@ extension UserListViewController {
 extension UserListViewController {
     // MARK: - DataSource Methods
     
-    func updateTableView() {
+    func updateTableView(with users: [UserViewModel], animate: Bool = true) {
         var snapshot = Snapshot()
         snapshot.appendSections(Section.allCases)
-        snapshot.appendItems(viewModel.listOfUsers, toSection: .user)
-        dataSource?.apply(snapshot, animatingDifferences: true)
+        snapshot.appendItems(users, toSection: .user)
+        dataSource?.apply(snapshot, animatingDifferences: animate)
     }
     
     func remove(_ users: [UserViewModel], animate: Bool = true) {
@@ -159,11 +159,6 @@ extension UserListViewController {
         var snapshot = dataSource.snapshot()
         snapshot.deleteItems(users)
         dataSource.apply(snapshot, animatingDifferences: animate)
-    }
-    
-    func showError(_ error: Error) {
-        // Implement error display logic (e.g., show an alert)
-        print("Error: \(error.localizedDescription)")
     }
 }
 
